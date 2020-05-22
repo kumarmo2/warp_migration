@@ -1,10 +1,14 @@
 use sqlx::MySqlPool;
 use validator::validate_email;
-use warp::http::StatusCode;
+use warp::http::{response::Response, StatusCode};
+use warp::hyper::body::Body;
 
 use crate::{
     business::users::create as create_bl,
-    dtos::{users::CreateUserRequest, CustomResponse},
+    dtos::{
+        response::Error,
+        users::{CreateUserRequest, User as UserDto},
+    },
     models::users::UserResult,
 };
 
@@ -13,16 +17,18 @@ pub async fn create(
     conn: MySqlPool,
 ) -> Result<impl warp::reply::Reply, std::convert::Infallible> {
     if let Some(reason) = validate_create_user_request(&user_request) {
-        return Ok(CustomResponse::with_error(reason, StatusCode::BAD_REQUEST));
+        let err = Error::new(String::from(reason));
+        return Ok(Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::from(serde_json::to_string(&err).unwrap())));
     }
     let user;
     match create_bl(&user_request, &conn).await {
         Ok(result) => match result {
             UserResult::EmailAlreadyExists => {
-                return Ok(CustomResponse::with_error(
-                    "email already exists",
-                    StatusCode::OK,
-                ));
+                return Ok(Response::builder().status(StatusCode::OK).body(Body::from(
+                    serde_json::to_string(&Error::new("Email already in use")).unwrap(),
+                )));
             }
             UserResult::Model(u) => {
                 user = u;
@@ -30,14 +36,19 @@ pub async fn create(
         },
         Err(reason) => {
             println!("could not create user: {}", reason);
-            return Ok(CustomResponse::with_error(
-                "Internal Server Error",
-                StatusCode::INTERNAL_SERVER_ERROR,
-            ));
+            return Ok(Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::empty()));
         }
     }
     // TODO: Set cookie as well.
-    Ok(CustomResponse::with_result(()))
+    // let x = with_header(response, "sdfs", "dfss");
+    let x = Ok(Response::builder()
+        .header("sdfsdl", "dsfsdf")
+        .body(Body::from(
+            serde_json::to_string(&UserDto::from(user)).unwrap(),
+        )));
+    x
 }
 
 fn validate_create_user_request(user_request: &CreateUserRequest) -> Option<&'static str> {
