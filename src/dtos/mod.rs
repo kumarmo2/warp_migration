@@ -51,8 +51,4 @@ pub mod response {
             Error { error }
         }
     }
-
-    // impl<E> Error<E>
-    //     where
-    //     E: AsRef<str>
 }
