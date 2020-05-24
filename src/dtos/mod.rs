@@ -18,6 +18,23 @@ pub mod users {
         email: String,
     }
 
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct UserDto {
+        id: i32,
+        name: String,
+        email: String,
+    }
+
+    impl From<User> for UserDto {
+        fn from(model: User) -> Self {
+            Self {
+                id: model.id,
+                name: model.name,
+                email: model.email,
+            }
+        }
+    }
+
     impl From<UserModel> for User {
         fn from(model: UserModel) -> Self {
             Self {
@@ -39,6 +56,37 @@ pub mod users {
     pub struct UserJwtPayload {
         pub id: i32,
         pub exp: u64,
+    }
+}
+
+pub mod rooms {
+    use super::users::UserDto;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct RoomDetails {
+        id: i32,
+        name: String,
+        #[serde(rename = "creatorUserId")]
+        creator_user_id: i32,
+        members: Vec<UserDto>,
+    }
+
+    impl RoomDetails {
+        pub fn new(id: i32, name: String, creator_user_id: i32) -> Self {
+            Self {
+                id,
+                name,
+                creator_user_id,
+                members: Vec::new(),
+            }
+        }
+    }
+
+    impl RoomDetails {
+        pub fn add_member(&mut self, member: UserDto) {
+            self.members.push(member);
+        }
     }
 }
 

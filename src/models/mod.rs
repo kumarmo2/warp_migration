@@ -13,3 +13,14 @@ pub mod users {
         Model(User),
     }
 }
+
+pub mod rooms {
+    #[derive(sqlx::FromRow, Debug)]
+    pub struct Room {
+        pub id: i32,
+        pub name: String,
+        pub creator_user_id: i32,
+        pub url_identifier: String,
+        pub is_public: bool,
+    }
+}
