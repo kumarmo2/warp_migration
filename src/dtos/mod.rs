@@ -29,26 +29,35 @@ pub mod users {
         }
     }
 
+    impl User {
+        pub fn get_id(&self) -> i32 {
+            self.id
+        }
+    }
+
     #[derive(Debug, Serialize, Deserialize)]
     pub struct UserJwtPayload {
-        id: i32,
+        pub id: i32,
+        pub exp: u64,
     }
 }
 
 pub mod response {
     use serde::Serialize;
+    use warp::reject::Reject;
 
-    #[derive(Serialize)]
-    pub struct Error<E> {
-        error: E,
+    #[derive(Serialize, Debug)]
+    pub struct Error {
+        pub error: &'static str,
+        #[serde(skip_serializing)]
+        pub code: u16,
     }
 
-    impl<E> Error<E>
-    where
-        E: Serialize,
-    {
-        pub fn new(error: E) -> Self {
-            Error { error }
+    impl Reject for Error {}
+
+    impl Error {
+        pub fn new(error: &'static str, code: u16) -> Self {
+            Self { error, code }
         }
     }
 }
