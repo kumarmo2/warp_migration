@@ -24,7 +24,7 @@ pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> 
         error_message = "Internal Server Error!";
     }
 
-    println!("from handle_rejection, message: {}", error_message);
+    println!("from handle_rejection, message: {:?}", err);
     let error_response = warp::reply::json(&Error::new(error_message, code));
     Ok(warp::reply::with_status(
         error_response,
