@@ -9,8 +9,8 @@ use validator::validate_email;
 use warp::{http::response::Response, hyper::body::Body, Filter, Rejection, Reply};
 
 use crate::{
-    dtos::{response::Error, users::User as UserDto},
-    models::users::UserResult,
+    dtos::{response::Error, users::UserDto},
+    models::users::{User, UserResult},
 };
 
 pub fn get_filters(
@@ -43,7 +43,7 @@ async fn create(
     user_request: CreateUserRequest,
     conn: MySqlPool,
 ) -> Result<UserDto, warp::Rejection> {
-    let user;
+    let user: User;
     match create_bl(&user_request, &conn).await {
         Ok(result) => match result {
             UserResult::EmailAlreadyExists => {

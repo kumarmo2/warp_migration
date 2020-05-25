@@ -23,4 +23,10 @@ pub mod rooms {
         pub url_identifier: String,
         pub is_public: bool,
     }
+
+    #[derive(sqlx::FromRow, Debug)]
+    pub struct RoomSubscriber {
+        pub member_id: i32,
+        pub room_id: i32,
+    }
 }
