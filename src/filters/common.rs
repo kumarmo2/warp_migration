@@ -40,6 +40,9 @@ pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> 
 
 pub fn with_user(conn: MySqlPool) -> impl Filter<Extract = (User,), Error = Rejection> + Clone {
     cookie(USER_COOKIE_NAME)
+        .or_else(|_: Rejection| async move {
+            Err(warp::reject::custom(Error::new("Unauthenticated", 401)))
+        })
         .and_then(|user_cookie: String| async move {
             match get_payload_from_user_cookie_str(&user_cookie) {
                 Ok(token_data) => Ok(token_data.claims),
