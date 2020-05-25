@@ -17,9 +17,10 @@ pub fn get_all_filters(
     warp::get().and(get_by_path)
 }
 
-async fn get_room_details_by_path(
-    path: String,
-    _: User, //This parameter was just for user authentication.
-    pool: MySqlPool,
-) -> Result<RoomDetails, Rejection> {
-}
+// async fn get_room_details_by_path(
+//     path: String,
+//     _: User, //This parameter was just for user authentication.
+//     pool: MySqlPool,
+// ) -> Result<RoomDetails, Rejection> {
+
+// }
