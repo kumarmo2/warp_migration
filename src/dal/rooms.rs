@@ -1,6 +1,5 @@
 use crate::models::rooms::{Room, RoomSubscriber};
-// use sqlx::{mysql::MySqlQueryAs, prelude::*, MySqlPool};
-use sqlx::{mysql::MySqlRow, prelude::*, row::Row, MySqlPool};
+use sqlx::{prelude::*, row::Row, MySqlPool};
 
 pub async fn get_room_by_path(path: &str, conn: &MySqlPool) -> Result<Room, sqlx::Error> {
     sqlx::query_as::<_, Room>("select * from rooms where url_identifier = ? limit 1")
