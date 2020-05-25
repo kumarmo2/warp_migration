@@ -10,6 +10,12 @@ pub async fn get_by_email(email: &str, conn: &MySqlPool) -> Result<User, sqlx::E
     Ok(result)
 }
 
+pub async fn get_by_id(id: i32, conn: &MySqlPool) -> Result<User, sqlx::Error> {
+    sqlx::query_as!(User, "select * from users where id = ?", id)
+        .fetch_one(conn)
+        .await
+}
+
 pub async fn create(
     user: &CreateUserRequest,
     hash_pass: &str,

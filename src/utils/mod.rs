@@ -1,7 +1,7 @@
 pub mod users {
-    use crate::constants::JWT_SECRET;
+    use crate::constants::{JWT_SECRET, USER_COOKIE_NAME};
     use cookie::{Cookie, CookieBuilder};
-    use jsonwebtoken::{encode, Algorithm, Header};
+    use jsonwebtoken::{decode, encode, Algorithm, Header, TokenData, Validation};
     use time::Duration;
 
     use crate::dtos::users::UserJwtPayload;
@@ -13,10 +13,16 @@ pub mod users {
         };
         let header = Header::new(Algorithm::HS256);
         let token = encode(&header, &payload, JWT_SECRET).unwrap();
-        CookieBuilder::new("auth", token)
+        CookieBuilder::new(USER_COOKIE_NAME, token)
             .http_only(true)
             .path("/")
             .max_age(Duration::days(365))
             .finish()
+    }
+
+    pub fn get_payload_from_user_cookie_str(
+        token: &str,
+    ) -> jsonwebtoken::errors::Result<TokenData<UserJwtPayload>> {
+        decode::<UserJwtPayload>(token, JWT_SECRET, &Validation::new(Algorithm::HS256))
     }
 }

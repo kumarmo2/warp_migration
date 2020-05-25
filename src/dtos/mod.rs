@@ -1,5 +1,5 @@
 pub mod users {
-    use crate::models::users::User as UserModel;
+    use crate::models::users::User;
     use serde::{Deserialize, Serialize};
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -11,15 +11,16 @@ pub mod users {
     }
 
     #[derive(Debug, Serialize, Deserialize)]
-    pub struct User {
+    pub struct UserDto {
         id: i32,
         name: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
         age: Option<i32>,
         email: String,
     }
 
-    impl From<UserModel> for User {
-        fn from(model: UserModel) -> Self {
+    impl From<User> for UserDto {
+        fn from(model: User) -> Self {
             Self {
                 id: model.id,
                 name: model.name,
@@ -29,7 +30,7 @@ pub mod users {
         }
     }
 
-    impl User {
+    impl UserDto {
         pub fn get_id(&self) -> i32 {
             self.id
         }
@@ -39,6 +40,37 @@ pub mod users {
     pub struct UserJwtPayload {
         pub id: i32,
         pub exp: u64,
+    }
+}
+
+pub mod rooms {
+    use super::users::UserDto;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct RoomDetails {
+        id: i32,
+        name: String,
+        #[serde(rename = "creatorUserId")]
+        creator_user_id: i32,
+        members: Vec<UserDto>,
+    }
+
+    impl RoomDetails {
+        pub fn new(id: i32, name: String, creator_user_id: i32) -> Self {
+            Self {
+                id,
+                name,
+                creator_user_id,
+                members: Vec::new(),
+            }
+        }
+    }
+
+    impl RoomDetails {
+        pub fn add_member(&mut self, member: UserDto) {
+            self.members.push(member);
+        }
     }
 }
 
