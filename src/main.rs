@@ -12,9 +12,10 @@ mod utils;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // TODO: check if we can do it lazily
+    // Run mysql docker container before starting.
     let pool = MySqlPool::builder()
         .max_size(5)
-        .build("mysql://root:root@127.0.0.1/practice")
+        .build("mysql://root:admin@db/practice")
         .await?;
 
     // TODO: make it sit behind nginx.
