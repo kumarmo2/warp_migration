@@ -43,6 +43,30 @@ pub mod users {
     }
 }
 
+pub mod messages {
+    use crate::models::messages::Message as MessageModel;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Serialize, Deserialize)]
+    pub struct Message {
+        pub id: i32,
+        pub room_id: i32,
+        pub sender_id: i32,
+        pub content: String,
+    }
+
+    impl From<MessageModel> for Message {
+        fn from(model: MessageModel) -> Self {
+            Message {
+                id: model.id,
+                room_id: model.room_id,
+                sender_id: model.sender_id,
+                content: model.content,
+            }
+        }
+    }
+}
+
 pub mod rooms {
     use super::users::UserDto;
     use serde::{Deserialize, Serialize};

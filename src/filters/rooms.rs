@@ -1,13 +1,14 @@
 use super::common::{with_db, with_user};
 use crate::{
     dal::{
+        messages::get_messages_of_room,
         rooms::{
-            get_room_by_path as get_room_by_path_dal,
+            get_room_by_id as get_room_by_id_dal, get_room_by_path as get_room_by_path_dal,
             get_room_subscribers as get_room_subscribers_dal,
         },
         users::get_by_id,
     },
-    dtos::{response::Error, rooms::RoomDetails, users::UserDto},
+    dtos::{messages::Message, response::Error, rooms::RoomDetails, users::UserDto},
     models::{
         rooms::{Room, RoomSubscriber},
         users::User,
@@ -21,7 +22,6 @@ pub fn get_all_filters(
     conn: MySqlPool,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     let api_prefix = path("rooms");
-
     let get_by_path = api_prefix
         .and(warp::path::param())
         .and(with_user(conn.clone()))
@@ -30,7 +30,45 @@ pub fn get_all_filters(
         .and_then(get_room_subscribers)
         .and_then(get_room_details);
 
-    warp::get().and(get_by_path)
+    let room_messages = with_user(conn.clone())
+        .and(api_prefix)
+        .and(warp::path::param())
+        .and(warp::path::path("messages"))
+        .and(with_db(conn.clone()))
+        .and_then(get_room_by_id)
+        .and_then(get_room_messages);
+
+    warp::get().and(get_by_path.or(room_messages))
+}
+
+async fn get_room_by_id(
+    _user: User,
+    id: i32,
+    conn: MySqlPool,
+) -> Result<(Room, MySqlPool), Rejection> {
+    match get_room_by_id_dal(id, &conn).await {
+        Ok(room) => Ok((room, conn)),
+        Err(reason) => {
+            println!("error: {}", reason);
+            Err(warp::reject::custom(Error::new("Could not find room", 404)))
+        }
+    }
+}
+
+async fn get_room_messages((room, conn): (Room, MySqlPool)) -> Result<impl Reply, Rejection> {
+    match get_messages_of_room(room.id, &conn).await {
+        Ok(messages) => {
+            let result: Vec<Message> = messages.into_iter().map(|m| Message::from(m)).collect();
+            Ok(warp::reply::json(&result))
+        }
+        Err(reason) => {
+            println!("error, reason: {}", reason);
+            Err(warp::reject::custom(Error::new(
+                "Something went wrong",
+                500,
+            )))
+        }
+    }
 }
 
 async fn get_room_details(

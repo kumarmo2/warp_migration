@@ -8,6 +8,13 @@ pub async fn get_room_by_path(path: &str, conn: &MySqlPool) -> Result<Room, sqlx
         .await
 }
 
+pub async fn get_room_by_id(id: i32, conn: &MySqlPool) -> Result<Room, sqlx::Error> {
+    sqlx::query_as::<_, Room>("select * from rooms where id = ? limit 1")
+        .bind(id)
+        .fetch_one(conn)
+        .await
+}
+
 pub async fn get_room_subscribers(
     id: i32,
     pool: &MySqlPool,
