@@ -24,6 +24,7 @@ pub fn get_all_filters(
     let api_prefix = path("rooms");
     let get_by_path = api_prefix
         .and(warp::path::param())
+        .and(warp::path::end())
         .and(with_user(conn.clone()))
         .and(with_db(conn.clone()))
         .and_then(get_room_by_path)
@@ -34,6 +35,7 @@ pub fn get_all_filters(
         .and(api_prefix)
         .and(warp::path::param())
         .and(warp::path::path("messages"))
+        .and(warp::path::end())
         .and(with_db(conn.clone()))
         .and_then(get_room_by_id)
         .and_then(get_room_messages);
