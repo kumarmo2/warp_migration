@@ -19,3 +19,4 @@ bcrypt = "0.7.0"
 cookie = "0.13.3"
 jsonwebtoken = "5.0.1"
 time = "0.2.16"
+mapper = {git = "https://github.com/kumarmo2/mapper.git", branch = "v0.1"}

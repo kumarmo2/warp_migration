@@ -15,7 +15,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Run mysql docker container before starting.
     let pool = MySqlPool::builder()
         .max_size(5)
-        .build("mysql://root:admin@db/practice")
+        // TODO: need to think about how to keep this dynamic
+        .build("mysql://root:admin@localhost/practice")
         .await?;
 
     // TODO: make it sit behind nginx.

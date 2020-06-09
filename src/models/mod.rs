@@ -14,6 +14,16 @@ pub mod users {
     }
 }
 
+pub mod messages {
+    #[derive(sqlx::FromRow, Debug)]
+    pub struct Message {
+        pub id: i32,
+        pub room_id: i32,
+        pub sender_id: i32,
+        pub content: String,
+    }
+}
+
 pub mod rooms {
     #[derive(sqlx::FromRow, Debug)]
     pub struct Room {

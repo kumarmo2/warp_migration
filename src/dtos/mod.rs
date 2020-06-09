@@ -1,5 +1,6 @@
 pub mod users {
     use crate::models::users::User;
+    use mapper::Mapper;
     use serde::{Deserialize, Serialize};
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -10,24 +11,14 @@ pub mod users {
         pub password: String,
     }
 
-    #[derive(Debug, Serialize, Deserialize)]
+    #[derive(Debug, Serialize, Deserialize, Mapper)]
+    #[from(User)]
     pub struct UserDto {
         id: i32,
         name: String,
         #[serde(skip_serializing_if = "Option::is_none")]
         age: Option<i32>,
         email: String,
-    }
-
-    impl From<User> for UserDto {
-        fn from(model: User) -> Self {
-            Self {
-                id: model.id,
-                name: model.name,
-                age: model.age,
-                email: model.email,
-            }
-        }
     }
 
     impl UserDto {
@@ -40,6 +31,21 @@ pub mod users {
     pub struct UserJwtPayload {
         pub id: i32,
         pub exp: u64,
+    }
+}
+
+pub mod messages {
+    use crate::models::messages::Message as MessageModel;
+    use mapper::Mapper;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Mapper, Serialize, Deserialize)]
+    #[from(MessageModel)]
+    pub struct Message {
+        pub id: i32,
+        pub room_id: i32,
+        pub sender_id: i32,
+        pub content: String,
     }
 }
 
